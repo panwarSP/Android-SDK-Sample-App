@@ -16,14 +16,18 @@ import android.widget.Toast;
 
 import com.payu.india.Extras.PayUChecksum;
 import com.payu.india.Extras.PayUSdkDetails;
-import com.payu.india.Model.PaymentParams;
+//import com.payu.india.Model.PaymentParams;
 import com.payu.india.Model.PayuConfig;
 import com.payu.india.Model.PayuHashes;
-import com.payu.india.Model.PostData;
+//import com.payu.india.Model.PostData;
 import com.payu.india.Payu.Payu;
 import com.payu.india.Payu.PayuConstants;
 import com.payu.india.Payu.PayuErrors;
+import com.payu.paymentparamhelper.PaymentParams;
+import com.payu.paymentparamhelper.PostData;
 import com.payu.payuui.Activity.PayUBaseActivity;
+
+import java.security.MessageDigest;
 
 /**
  * This activity prepares PaymentParams, fetches hashes from server and send it to PayuBaseActivity.java.
@@ -36,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     // These will hold all the payment parameters
     private PaymentParams mPaymentParams;
+    private String paymentHash1;
 
     // This sets the configuration
     private PayuConfig payuConfig;
@@ -44,8 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Used when generating hash from SDK
     private PayUChecksum checksum;
-    private EditText etSalt;
-    private String salt = null;
+    String salt = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,13 +90,13 @@ public class MainActivity extends AppCompatActivity {
                     /* For test keys, please contact mobile.integration@payu.in with your app name and registered email id
                      */
                     // ((EditText) findViewById(R.id.editTextMerchantKey)).setText("0MQaQP");
-                    ((EditText) findViewById(R.id.editTextMerchantKey)).setText("smsplus");
-                    ((EditText) findViewById(R.id.editTextMerchantSalt)).setText("1b1b0");
+                  ((EditText) findViewById(R.id.editTextMerchantKey)).setText("smsplus");
+                  //  ((EditText) findViewById(R.id.editTextMerchantKey)).setText("Rqpe0a");
                 }
                 else{
                     //set the test key in test environment
-                    ((EditText) findViewById(R.id.editTextMerchantKey)).setText("gtKFFX");
-                    ((EditText) findViewById(R.id.editTextMerchantSalt)).setText("eCwWELxi");
+                    //((EditText) findViewById(R.id.editTextMerchantKey)).setText("gtKFFX");
+                    ((EditText) findViewById(R.id.editTextMerchantKey)).setText("psTghd");
 
                 }
             }
@@ -116,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
                  * PayU sends the same response to merchant server and in app. In response check the value of key "status"
                  * for identifying status of transaction. There are two possible status like, success or failure
                  * */
-                new AlertDialog.Builder(this, R.style.Theme_AppCompat_Light_Dialog_Alert)
+                new AlertDialog.Builder(this)
                         .setCancelable(false)
                         .setMessage("Payu's Data : " + data.getStringExtra("payu_response") + "\n\n\n Merchant's Data: " + data.getStringExtra("result"))
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -139,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
 
         // merchantKey="";
         merchantKey = ((EditText) findViewById(R.id.editTextMerchantKey)).getText().toString();
-        etSalt = ((EditText) findViewById(R.id.editTextMerchantSalt));
         String amount = ((EditText) findViewById(R.id.editTextAmount)).getText().toString();
         String email = ((EditText) findViewById(R.id.editTextEmail)).getText().toString();
 
@@ -162,22 +165,26 @@ public class MainActivity extends AppCompatActivity {
         mPaymentParams.setKey(merchantKey);
         mPaymentParams.setAmount(amount);
         mPaymentParams.setProductInfo("product_info");
-        mPaymentParams.setFirstName("firstname");
-        mPaymentParams.setEmail("test@gmail.com");
+        mPaymentParams.setFirstName("AnkitTEST");
+        mPaymentParams.setEmail("ankitmonani@colive.com");
         mPaymentParams.setPhone("");
 
+        mPaymentParams.setBeneficiaryAccountNumber("50100041412026");
 
         /*
          * Transaction Id should be kept unique for each transaction.
          * */
         mPaymentParams.setTxnId("" + System.currentTimeMillis());
+       // mPaymentParams.setTxnId("1587113659761");
 
         /**
          * Surl --> Success url is where the transaction response is posted by PayU on successful transaction
          * Furl --> Failre url is where the transaction response is posted by PayU on failed transaction
          */
-        mPaymentParams.setSurl(" https://payuresponse.firebaseapp.com/success");
-        mPaymentParams.setFurl("https://payuresponse.firebaseapp.com/failure");
+       // mPaymentParams.setSurl(" https://www.fitternity.com/paymentsuccessandroid");
+        mPaymentParams.setSurl("https://payu.herokuapp.com/success");
+        mPaymentParams.setFurl("https://payu.herokuapp.com/failure");
+      //  mPaymentParams.setFurl("https://www.fitternity.com/paymentsuccessandroid");
         mPaymentParams.setNotifyURL(mPaymentParams.getSurl());  //for lazy pay
 
         /*
@@ -199,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
         mPaymentParams.setUserCredentials(userCredentials);
 
         //TODO Pass this param only if using offer key
-        //mPaymentParams.setOfferKey("cardnumber@8370");
+       // mPaymentParams.setOfferKey("YONOYSF@6445");
 
         //TODO Sets the payment environment in PayuConfig object
         payuConfig = new PayuConfig();
@@ -213,16 +220,20 @@ public class MainActivity extends AppCompatActivity {
          * should not be used.
          * */
         if(environment== PayuConstants.STAGING_ENV){
-            salt = "eCwWELxi";
+          //  salt = " ";
+            salt = "aYTYaaqA";
         }else {
             //Production Env
             salt = "1b1b0";
+           //salt = "ASSchu2n";
+           // salt = "Xd4VtaFd";
+          //  salt = "13p0PXZk";
         }
-        etSalt.setText(salt);
 //        String salt = "eCwWELxi";
         // String salt = "13p0PXZk";
         // String salt = "1b1b0";
-        //
+
+      //  String salt = "mF1Rgbi5";
         generateHashFromSDK(mPaymentParams, salt);
 
     }
@@ -237,6 +248,8 @@ public class MainActivity extends AppCompatActivity {
     public void generateHashFromSDK(PaymentParams mPaymentParams, String salt) {
         PayuHashes payuHashes = new PayuHashes();
         PostData postData = new PostData();
+
+        if(mPaymentParams.getBeneficiaryAccountNumber()== null){
 
         // payment Hash;
         checksum = null;
@@ -257,6 +270,16 @@ public class MainActivity extends AppCompatActivity {
         postData = checksum.getHash();
         if (postData.getCode() == PayuErrors.NO_ERROR) {
             payuHashes.setPaymentHash(postData.getResult());
+        }}
+
+        else {
+            String hashString = merchantKey + "|" + mPaymentParams.getTxnId() + "|" + mPaymentParams.getAmount() + "|" + mPaymentParams.getProductInfo() + "|" + mPaymentParams.getFirstName() + "|" + mPaymentParams.getEmail() + "|" + mPaymentParams.getUdf1() + "|" + mPaymentParams.getUdf2() + "|" + mPaymentParams.getUdf3() + "|" + mPaymentParams.getUdf4() + "|" + mPaymentParams.getUdf5() + "||||||{\"beneficiaryAccountNumber\":\"" +mPaymentParams.getBeneficiaryAccountNumber()+ "\"}|" + salt;
+
+            paymentHash1 = calculateHash(hashString);
+            payuHashes.setPaymentHash(paymentHash1);
+
+
+
         }
 
         // checksum for payemnt related details
@@ -328,6 +351,29 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra(PayuConstants.PAYU_HASHES, payuHashes);
         startActivityForResult(intent, PayuConstants.PAYU_REQUEST_CODE);
     }
+
+    /******************************
+     * Client hash generation
+     ***********************************/
+    // Do not use this, you may use this only for testing.
+    // lets generate hashes.
+    // This should be done from server side..
+    // Do not keep salt anywhere in app.
+    private String calculateHash(String hashString) {
+        try {
+            StringBuilder hash = new StringBuilder();
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
+            messageDigest.update(hashString.getBytes());
+            byte[] mdbytes = messageDigest.digest();
+            for (byte hashByte : mdbytes) {
+                hash.append(Integer.toString((hashByte & 0xff) + 0x100, 16).substring(1));
+            }
+            return hash.toString();
+        } catch (Exception e) {
+            return "ERROR";
+        }
+    }
+
 
 
 }
