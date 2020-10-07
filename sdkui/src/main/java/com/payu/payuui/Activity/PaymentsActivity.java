@@ -3,6 +3,8 @@ package com.payu.payuui.Activity;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.webkit.WebView;
@@ -47,6 +49,12 @@ public class PaymentsActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //android O fix bug orientation
+        if (android.os.Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
         if (savedInstanceState == null) { ;
             bundle = getIntent().getExtras();
 

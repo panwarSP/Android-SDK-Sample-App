@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         mPaymentParams.setEmail("ankitmonani@colive.com");
         mPaymentParams.setPhone("");
 
-        mPaymentParams.setBeneficiaryAccountNumber("50100041412026");
+//        mPaymentParams.setBeneficiaryAccountNumber("50100041412026");
 
         /*
          * Transaction Id should be kept unique for each transaction.
@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
         PayuHashes payuHashes = new PayuHashes();
         PostData postData = new PostData();
 
-        if(mPaymentParams.getBeneficiaryAccountNumber()== null){
+//        if(mPaymentParams.getBeneficiaryAccountNumber()== null){
 
         // payment Hash;
         checksum = null;
@@ -270,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
         postData = checksum.getHash();
         if (postData.getCode() == PayuErrors.NO_ERROR) {
             payuHashes.setPaymentHash(postData.getResult());
-        }}
+        }/*}
 
         else {
             String hashString = merchantKey + "|" + mPaymentParams.getTxnId() + "|" + mPaymentParams.getAmount() + "|" + mPaymentParams.getProductInfo() + "|" + mPaymentParams.getFirstName() + "|" + mPaymentParams.getEmail() + "|" + mPaymentParams.getUdf1() + "|" + mPaymentParams.getUdf2() + "|" + mPaymentParams.getUdf3() + "|" + mPaymentParams.getUdf4() + "|" + mPaymentParams.getUdf5() + "||||||{\"beneficiaryAccountNumber\":\"" +mPaymentParams.getBeneficiaryAccountNumber()+ "\"}|" + salt;
@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        }
+        }*/
 
         // checksum for payemnt related details
         // var1 should be either user credentials or default
