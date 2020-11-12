@@ -26,5 +26,5 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.0'
     implementation 'com.android.support:support-v4:27.1.0'
     implementation 'com.payu.phonepe:phonepe-intent:1.5.2'
-    implementation 'com.payu.upisdk:upisdk:1.3.0'
+    implementation 'com.payu.upisdk:upisdk:1.3.2'
 }
