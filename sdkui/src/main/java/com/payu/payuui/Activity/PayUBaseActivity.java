@@ -494,28 +494,16 @@ public class PayUBaseActivity extends FragmentActivity implements PaymentRelated
                 }
             }
 
-            if (mPostData != null && mPostData.getCode() == PayuErrors.NO_ERROR) {
-                payuConfig.setData(mPostData.getResult());
-
+            if (mPostData != null) {
+                if (mPostData.getCode() == PayuErrors.NO_ERROR) {
+                    payuConfig.setData(mPostData.getResult());
+                    Intent intent = new Intent(this, PaymentsActivity.class);
+                    intent.putExtra(PayuConstants.PAYU_CONFIG, payuConfig);
+                    startActivityForResult(intent, PayuConstants.PAYU_REQUEST_CODE);
+                } else {
+                    Toast.makeText(this, mPostData.getResult(), Toast.LENGTH_LONG).show();
+                }
             }
-//            else if (paymentOptionsList.get(viewPager.getCurrentItem()).equalsIgnoreCase("SAMPAY")) {
-//                        payuConfig.setData(samPayPostData);
-//
-//            }
-
-
-            Intent intent = new Intent(this, PaymentsActivity.class);
-            intent.putExtra(PayuConstants.PAYU_CONFIG, payuConfig);
-            startActivityForResult(intent, PayuConstants.PAYU_REQUEST_CODE);
-
-
-
-         //   intent.putExtra("isPaymentByPhonePe",isPaymentByPhonePe);
-
-        } else {
-            if (mPostData != null)
-                Toast.makeText(this, mPostData.getResult(), Toast.LENGTH_LONG).show();
-
         }
     }
 
