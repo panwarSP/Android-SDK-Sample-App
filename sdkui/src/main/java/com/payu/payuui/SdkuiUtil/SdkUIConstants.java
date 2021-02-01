@@ -27,4 +27,5 @@ public interface SdkUIConstants {
 
     String CREDIT_CARDS = "Credit Cards";
     String DEBIT_CARDS = "Debit Cards";
+    String SUBVENTION_HASH = "subventionHash";
 }

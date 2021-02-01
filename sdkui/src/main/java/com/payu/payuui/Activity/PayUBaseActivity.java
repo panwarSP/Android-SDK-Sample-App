@@ -24,6 +24,7 @@ import com.payu.custombrowser.bean.CustomBrowserResultData;
 import com.payu.custombrowser.util.PaymentOption;
 import com.payu.india.Interfaces.PaymentRelatedDetailsListener;
 import com.payu.india.Interfaces.ValueAddedServiceApiListener;
+import com.payu.india.Model.Emi;
 import com.payu.india.Model.MerchantWebService;
 import com.payu.india.Model.PaymentDetails;
 //import com.payu.india.Model.PaymentParams;
@@ -164,6 +165,8 @@ public class PayUBaseActivity extends FragmentActivity implements PaymentRelated
                 merchantWebService.setCommand(PayuConstants.PAYMENT_RELATED_DETAILS_FOR_MOBILE_SDK);
                 merchantWebService.setVar1(mPaymentParams.getUserCredentials() == null ? "default" : mPaymentParams.getUserCredentials());
 
+                if (mPaymentParams.getSubventionEligibility() != null && !mPaymentParams.getSubventionEligibility().isEmpty())
+                    merchantWebService.setVar2(mPaymentParams.getSubventionEligibility());
                 merchantWebService.setHash(mPayUHashes.getPaymentRelatedDetailsForMobileSdkHash());
 
                 // fetching for the first time.
@@ -281,6 +284,13 @@ public class PayUBaseActivity extends FragmentActivity implements PaymentRelated
                 paymentOptionsList.add(SdkUIConstants.NET_BANKING);
             }
 
+            if(payuResponse.isEmiAvailable()){
+                paymentOptionsList.add(SdkUIConstants.EMI);
+            }
+
+            if(payuResponse.isCashCardAvailable()){
+                paymentOptionsList.add(SdkUIConstants.CASH_CARDS);
+            }
 
             if (payuResponse.isUpiAvailable()) { // adding UPI
                 paymentOptionsList.add(SdkUIConstants.UPI);
@@ -386,45 +396,18 @@ public class PayUBaseActivity extends FragmentActivity implements PaymentRelated
                             tempCreditDebitFragment.checkData();
                         break;
                     case SdkUIConstants.NET_BANKING:
-                        payNowButton.setEnabled(true);
-                        hideKeyboard();
-                        break;
                     case SdkUIConstants.PAYU_MONEY:
-                        payNowButton.setEnabled(true);
-                        hideKeyboard();
-                        break;
                     case SdkUIConstants.UPI:
-                        payNowButton.setEnabled(true);
-                        hideKeyboard();
-                        break;
                     case SdkUIConstants.TEZ:
-                        payNowButton.setEnabled(true);
-                        hideKeyboard();
-                        break;
-
                     case SdkUIConstants.GENERICINTENT:
-                        payNowButton.setEnabled(true);
-                        hideKeyboard();
-                        break;
-
                     case SdkUIConstants.LAZY_PAY:
-                        payNowButton.setEnabled(true);
-                        hideKeyboard();
-                        break;
                     case "SAMPAY":
-                        payNowButton.setEnabled(true);
-                        hideKeyboard();
-                        break;
-                    /*case SdkUIConstants.PHONEPE:
-                        payNowButton.setEnabled(true);
-                        hideKeyboard();
-                        break;*/
-
                     case SdkUIConstants.PHONEPE:
+                    case SdkUIConstants.EMI:
+                    case SdkUIConstants.CASH_CARDS:
                         payNowButton.setEnabled(true);
                         hideKeyboard();
                         break;
-
                 }
 
             }
@@ -461,8 +444,10 @@ public class PayUBaseActivity extends FragmentActivity implements PaymentRelated
                         makePaymentByNB();
                         break;
                     case SdkUIConstants.CASH_CARDS:
+                        makePaymentByWallets();
                         break;
                     case SdkUIConstants.EMI:
+                        makePaymentByEMI();
                         break;
                     case SdkUIConstants.PAYU_MONEY:
                         makePaymentByPayUMoney();
@@ -624,6 +609,60 @@ public class PayUBaseActivity extends FragmentActivity implements PaymentRelated
 
         try {
             mPostData = new PaymentPostParams(mPaymentParams, PayuConstants.NB).getPaymentPostParams();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void makePaymentByWallets() {
+
+        spinnerNetbanking = (Spinner) findViewById(R.id.spinnerWallets);
+        ArrayList<PaymentDetails> walletList = null;
+        if(mPayuResponse!=null)
+            walletList = mPayuResponse.getCashCard();
+
+        if(walletList!=null && walletList.get(spinnerNetbanking.getSelectedItemPosition()) !=null)
+            bankCode = walletList.get(spinnerNetbanking.getSelectedItemPosition()).getBankCode();
+
+        mPaymentParams.setBankCode(bankCode);
+
+        try {
+            mPostData = new PaymentPostParams(mPaymentParams, PayuConstants.CASH).getPaymentPostParams();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void makePaymentByEMI(){
+
+        Spinner emiDurationSpinner = (Spinner) findViewById(R.id.spinner_emi_duration);
+        EditText cardNumberEditText = (EditText) findViewById(R.id.edit_text_emi_card_number);
+        EditText nameOnCardEditText = (EditText) findViewById(R.id.edit_text_emi_name_on_card);
+        EditText cvvEditText = (EditText) findViewById(R.id.edit_text_emi_cvv);
+        EditText expiryMonthEditText = (EditText) findViewById(R.id.edit_text_emi_expiry_month);
+        EditText expiryYearEditText = (EditText) findViewById(R.id.edit_text_emi_expiry_year);
+
+        Emi selectedEmi = (Emi) emiDurationSpinner.getSelectedItem();
+        bankCode = selectedEmi.getBankCode();
+
+        mPaymentParams.setCardNumber(cardNumberEditText.getText().toString());
+        mPaymentParams.setNameOnCard(nameOnCardEditText.getText().toString());
+        mPaymentParams.setExpiryMonth(expiryMonthEditText.getText().toString());
+        mPaymentParams.setExpiryYear(expiryYearEditText.getText().toString());
+        mPaymentParams.setCvv(cvvEditText.getText().toString());
+        mPaymentParams.setBankCode(bankCode);
+
+        if (mPaymentParams.getSubventionAmount() != null && !mPaymentParams.getSubventionAmount().isEmpty()){
+            String subventionHash = bundle.getString(SdkUIConstants.SUBVENTION_HASH);
+            if (subventionHash != null && !subventionHash.isEmpty()) {
+                mPaymentParams.setHash(subventionHash);
+            }
+        }
+
+        try {
+            mPostData = new PaymentPostParams(mPaymentParams, PayuConstants.EMI).getPaymentPostParams();
         } catch (Exception e) {
             e.printStackTrace();
         }

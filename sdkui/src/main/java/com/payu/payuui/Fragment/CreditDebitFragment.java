@@ -58,7 +58,8 @@ public class CreditDebitFragment extends Fragment implements GetOfferStatusApiLi
     private PayuConfig payuConfig;
     private PayuUtils payuUtils;
     private PostData postData;
-    private MerchantWebService merchantWebService;
+    private MerchantWebService
+            merchantWebService;
 
     private boolean isCvvValid = false;
     private boolean isExpiryMonthValid = false;

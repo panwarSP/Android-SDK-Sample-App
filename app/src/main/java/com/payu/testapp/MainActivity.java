@@ -26,6 +26,7 @@ import com.payu.india.Payu.PayuErrors;
 import com.payu.paymentparamhelper.PaymentParams;
 import com.payu.paymentparamhelper.PostData;
 import com.payu.payuui.Activity.PayUBaseActivity;
+import com.payu.payuui.SdkuiUtil.SdkUIConstants;
 
 import java.security.MessageDigest;
 
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private PayuConfig payuConfig;
 
     private Spinner environmentSpinner;
+    private String subventionHash;
 
     // Used when generating hash from SDK
     private PayUChecksum checksum;
@@ -171,6 +173,9 @@ public class MainActivity extends AppCompatActivity {
 
 //        mPaymentParams.setBeneficiaryAccountNumber("50100041412026");
 
+        mPaymentParams.setSubventionAmount(amount);
+        mPaymentParams.setSubventionEligibility("all");
+
         /*
          * Transaction Id should be kept unique for each transaction.
          * */
@@ -270,7 +275,13 @@ public class MainActivity extends AppCompatActivity {
         postData = checksum.getHash();
         if (postData.getCode() == PayuErrors.NO_ERROR) {
             payuHashes.setPaymentHash(postData.getResult());
-        }/*}
+        }
+
+        if (mPaymentParams.getSubventionAmount() != null && !mPaymentParams.getSubventionAmount().isEmpty()){
+            subventionHash = calculateHash(""+mPaymentParams.getKey()+"|"+mPaymentParams.getTxnId()+"|"+mPaymentParams.getAmount()+"|"+mPaymentParams.getProductInfo()+"|"+mPaymentParams.getFirstName()+"|"+mPaymentParams.getEmail()+"|"+mPaymentParams.getUdf1()+"|"+mPaymentParams.getUdf2()+"|"+mPaymentParams.getUdf3()+"|"+mPaymentParams.getUdf4()+"|"+mPaymentParams.getUdf5()+"||||||"+salt+"|"+mPaymentParams.getSubventionAmount());
+        }
+
+        /*}
 
         else {
             String hashString = merchantKey + "|" + mPaymentParams.getTxnId() + "|" + mPaymentParams.getAmount() + "|" + mPaymentParams.getProductInfo() + "|" + mPaymentParams.getFirstName() + "|" + mPaymentParams.getEmail() + "|" + mPaymentParams.getUdf1() + "|" + mPaymentParams.getUdf2() + "|" + mPaymentParams.getUdf3() + "|" + mPaymentParams.getUdf4() + "|" + mPaymentParams.getUdf5() + "||||||{\"beneficiaryAccountNumber\":\"" +mPaymentParams.getBeneficiaryAccountNumber()+ "\"}|" + salt;
@@ -347,6 +358,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, PayUBaseActivity.class);
         intent.putExtra(PayuConstants.PAYU_CONFIG, payuConfig);
         intent.putExtra(PayuConstants.PAYMENT_PARAMS, mPaymentParams);
+        intent.putExtra(SdkUIConstants.SUBVENTION_HASH, subventionHash);
         intent.putExtra(PayuConstants.SALT,salt);
         intent.putExtra(PayuConstants.PAYU_HASHES, payuHashes);
         startActivityForResult(intent, PayuConstants.PAYU_REQUEST_CODE);
